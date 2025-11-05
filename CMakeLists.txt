@@ -1,0 +1,55 @@
+cmake_minimum_required(VERSION 3.15)
+project(NetworkAttackDetection)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+# Поиск ONNX Runtime, должна быть установлена переменная окружения ONNXRUNTIME_ROOT
+if(DEFINED ENV{ONNXRUNTIME_ROOT})
+    set(ONNXRUNTIME_ROOT $ENV{ONNXRUNTIME_ROOT})
+    message(STATUS "Found ONNX Runtime: ${ONNXRUNTIME_ROOT}")
+else()
+    message(FATAL_ERROR "Please set ONNXRUNTIME_ROOT environment variable")
+endif()
+
+include_directories(
+    ${ONNXRUNTIME_ROOT}/include
+    ${CMAKE_SOURCE_DIR}/include
+)
+
+# Исполняемый файл
+add_executable(network_ids 
+    src/main.cpp
+    src/ONNXModel.cpp
+)
+
+# Добавляем переменную для исходного кода
+target_compile_definitions(network_ids PRIVATE 
+    PROJECT_DIR="${CMAKE_SOURCE_DIR}"
+)
+
+# Линковка
+target_link_libraries(network_ids 
+    ${ONNXRUNTIME_ROOT}/lib/onnxruntime.lib
+)
+
+# Копируем DLL
+add_custom_command(TARGET network_ids POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy
+        "${ONNXRUNTIME_ROOT}/lib/onnxruntime.dll"
+        "$<TARGET_FILE_DIR:network_ids>"
+)
+
+# Копируем модель в бинарную директорию
+configure_file(
+    ${CMAKE_SOURCE_DIR}/models/DecisionTree_CICIDS2017_NetworkAttackDetector_v1.onnx
+    ${CMAKE_BINARY_DIR}/DecisionTree_CICIDS2017_NetworkAttackDetector_v1.onnx
+    COPYONLY
+)
+
+# Копируем CSV-файл в бинарную директорию
+configure_file(
+    ${CMAKE_SOURCE_DIR}/data/NetworkAtackDetection_Data.csv
+    ${CMAKE_BINARY_DIR}/NetworkAtackDetection_Data.csv
+    COPYONLY
+)
