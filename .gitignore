@@ -4,6 +4,3 @@ build/
 
 # Visual Studio
 .vs/
-
-# Full data
-data/NetworkAtackDetection_Data.csv
