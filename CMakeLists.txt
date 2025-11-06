@@ -33,6 +33,12 @@ target_link_libraries(network_ids
     ${ONNXRUNTIME_ROOT}/lib/onnxruntime.lib
 )
 
+if(WIN32)
+    target_link_libraries(network_ids ${ONNXRUNTIME_ROOT}/lib/onnxruntime.lib)
+else()
+    target_link_libraries(network_ids ${ONNXRUNTIME_ROOT}/lib/libonnxruntime.so)
+endif()
+
 # Копируем DLL
 add_custom_command(TARGET network_ids POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy
