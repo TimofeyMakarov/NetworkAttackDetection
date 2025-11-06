@@ -32,10 +32,8 @@ NetworkAttackDetection/
    ```
 3. Установите переменную окружения, чтоб проект нашёл onnxruntime:
    ```
-   # Для Windows
-   setx ONNXRUNTIME_ROOT "C:\path\to\onnxruntime"
-   # Для Linux
-   export ONNXRUNTIME_ROOT=/path/to/onnxruntime
+   setx ONNXRUNTIME_ROOT "C:\path\to\onnxruntime" # Для Windows
+   export ONNXRUNTIME_ROOT=/path/to/onnxruntime # Для Linux
    ```
 4. Соберите проект:
    ```
@@ -46,7 +44,8 @@ NetworkAttackDetection/
 5. Перейдите в папку с собранным проектом и запустите:
    ```
    # Запуск с моделью по умолчанию и sample_data.csv
-   ./network_ids.exe
+   ./network_ids.exe # Для Windows
+   ./network_ids # Для Linux
    ```
 
 Если хотите запустить **со своей моделью и данными**:
@@ -54,7 +53,8 @@ NetworkAttackDetection/
 2. Переместите your_data.csv в папку data
 3. **Запустите 🚀**:
    ```
-   ./network_ids.exe your_model.onnx your_data.csv
+   ./network_ids.exe your_model.onnx your_data.csv # Для Windows
+   ./network_ids your_model.onnx your_data.csv # Для Linux
    ```
 
 **Note**: можно, например, скачать [NetworkAttackDetection_Data.csv](https://drive.google.com/file/d/1Q057HJJTlS60P7vTorK9-n5MTFAadQ_7/view?usp=sharing), на котором проходило тестирование модели и убедиться, что точность модели равна 99.7% 👍
