@@ -4,3 +4,7 @@ build/
 
 # Visual Studio
 .vs/
+
+# Игнорируем все CSV файлы в data/ кроме sample_data.csv
+data/*.csv
+!data/sample_data.csv
