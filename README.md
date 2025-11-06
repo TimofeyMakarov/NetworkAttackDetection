@@ -8,7 +8,7 @@ NetworkAttackDetection
 ```
 NetworkAttackDetection/
 ├── data/
-│   └── NetworkAtackDetection_Data.csv
+│   └── sample_data.csv
 ├── include/
 │   └── ONNXModel.h
 ├── models/
