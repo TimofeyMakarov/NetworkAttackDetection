@@ -29,10 +29,6 @@ target_compile_definitions(network_ids PRIVATE
 )
 
 # Линковка
-target_link_libraries(network_ids 
-    ${ONNXRUNTIME_ROOT}/lib/onnxruntime.lib
-)
-
 if(WIN32)
     target_link_libraries(network_ids ${ONNXRUNTIME_ROOT}/lib/onnxruntime.lib)
 else()
