@@ -35,9 +35,18 @@ else()
     target_link_libraries(network_ids ${ONNXRUNTIME_ROOT}/lib/libonnxruntime.so)
 endif()
 
-# Копируем DLL
-add_custom_command(TARGET network_ids POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy
-        "${ONNXRUNTIME_ROOT}/lib/onnxruntime.dll"
-        "$<TARGET_FILE_DIR:network_ids>"
-)
+if(WIN32)
+    # Копируем DLL на Windows
+    add_custom_command(TARGET network_ids POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy
+            "${ONNXRUNTIME_ROOT}/lib/onnxruntime.dll"
+            "$<TARGET_FILE_DIR:network_ids>"
+    )
+else()
+    # Копируем SO на Linux
+    add_custom_command(TARGET network_ids POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy
+            "${ONNXRUNTIME_ROOT}/lib/libonnxruntime.so"
+            "$<TARGET_FILE_DIR:network_ids>"
+    )
+endif()
