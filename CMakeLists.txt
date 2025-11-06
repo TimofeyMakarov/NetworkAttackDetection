@@ -39,17 +39,3 @@ add_custom_command(TARGET network_ids POST_BUILD
         "${ONNXRUNTIME_ROOT}/lib/onnxruntime.dll"
         "$<TARGET_FILE_DIR:network_ids>"
 )
-
-# Копируем модель в бинарную директорию
-configure_file(
-    ${CMAKE_SOURCE_DIR}/models/DecisionTree_CICIDS2017_NetworkAttackDetector_v1.onnx
-    ${CMAKE_BINARY_DIR}/DecisionTree_CICIDS2017_NetworkAttackDetector_v1.onnx
-    COPYONLY
-)
-
-# Копируем CSV-файл в бинарную директорию
-configure_file(
-    ${CMAKE_SOURCE_DIR}/data/NetworkAtackDetection_Data.csv
-    ${CMAKE_BINARY_DIR}/NetworkAtackDetection_Data.csv
-    COPYONLY
-)
