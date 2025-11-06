@@ -15,6 +15,6 @@ private:
 
 public:
     ONNXModel(const ORTCHAR_T* model_path);
-    std::vector<int64_t> predict(std::vector<std::vector<float>>& input_data); // äëÿ ïðåäñêàçàíèÿ ìíîæåñòâà samples
-    std::vector<int64_t> predict(std::vector<float>& input_data); // äëÿ îäíîãî sample
+    std::vector<int64_t> predict(std::vector<std::vector<float>>& input_data); // для предсказания множества samples
+    std::vector<int64_t> predict(std::vector<float>& input_data); // для одного sample
 };
