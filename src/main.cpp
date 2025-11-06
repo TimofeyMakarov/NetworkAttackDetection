@@ -38,8 +38,8 @@ std::vector<std::vector<float>> read_test_data(const std::string& filename) {
 }
 
 bool has_cyrillic(const std::string& str) {
-    for (char c : str) {
-        if ((c >= 'À' && c <= 'ÿ') || c == '¸' || c == '¨') {
+    for (unsigned char c : str) {
+        if ((c >= 0xD0 && c <= 0xDF) || (c >= 0xE0 && c <= 0xEF)) {
             return true;
         }
     }
