@@ -7,26 +7,26 @@ ONNXModel::ONNXModel(const ORTCHAR_T* model_path)
 
     Ort::AllocatorWithDefaultOptions allocator;
 
-    // Êîë-âî âîçìîæíûõ âõîäîâ
+    // Кол-во возможных входов
     size_t num_input_nodes = session.GetInputCount();
 
     for (size_t i = 0; i < num_input_nodes; i++) {
-        // Ïîëó÷àåì èìÿ âõîäà
+        // Получаем имя входа
         Ort::AllocatedStringPtr input_name_ptr = session.GetInputNameAllocated(i, allocator);
         input_name_ptrs.push_back(std::move(input_name_ptr));
         input_names.push_back(input_name_ptrs[i].get());
 
-        // Èíôîðìàöèÿ î òèïå îæèäàåìûõ äàííûõ è ðàçìåðå
+        // Информация о типе ожидаемых данных и размере
         auto type_info = session.GetInputTypeInfo(i);
         auto tensor_info = type_info.GetTensorTypeAndShapeInfo();
         auto shape = tensor_info.GetShape();
         input_shapes.push_back(shape);
     }
 
-    // Êîë-âî âîçìîæíûõ âûõîäîâ
+    // Кол-во возможных выходов
     size_t num_output_nodes = session.GetOutputCount();
     for (size_t i = 0; i < num_output_nodes; i++) {
-        // Ïîëó÷àåì èìåíà âûõîäîâ ìîäåëè
+        // Получаем имена выходов модели
         Ort::AllocatedStringPtr output_name_ptr = session.GetOutputNameAllocated(i, allocator);
         output_name_ptrs.push_back(std::move(output_name_ptr));
         output_names.push_back(output_name_ptrs[i].get());
@@ -35,15 +35,15 @@ ONNXModel::ONNXModel(const ORTCHAR_T* model_path)
     std::cout << "Model was loaded" << std::endl;
 }
 
-// Ìåòîä äëÿ ïðåäñêàçàíèÿ äëÿ îäíîãî îáúåêòà
+// Метод для предсказания для одного объекта
 std::vector<int64_t> ONNXModel::predict(std::vector<float>& input_data) {
     Ort::MemoryInfo memory_info = Ort::MemoryInfo::CreateCpu(
         OrtAllocatorType::OrtArenaAllocator, OrtMemType::OrtMemTypeDefault);
 
-    // Ñîçäàåì âõîäíîé òåíçîð
+    // Создаем входной тензор
     std::vector<int64_t> input_shape = input_shapes[0];
 
-    // Çàìåíÿåì äèíàìè÷åñêóþ ðàçìåðíîñòü (-1) íà 1
+    // Заменяем динамическую размерность (-1) на 1
     size_t total_elements = 1;
     for (size_t i = 0; i < input_shape.size(); i++) {
         if (input_shape[i] == -1) {
@@ -58,23 +58,23 @@ std::vector<int64_t> ONNXModel::predict(std::vector<float>& input_data) {
 
     Ort::Value input_tensor = Ort::Value::CreateTensor<float>(
         memory_info,
-        input_data.data(),   // Ñàìè äàííûå
-        input_data.size(),   // Ðàçìåð äàííûõ
-        input_shape.data(),  // Èíôîðìàöèÿ î ôîðìå äàííûõ
-        input_shape.size()   // Ðàçìåðíîñòü 
+        input_data.data(),   // Сами данные
+        input_data.size(),   // Размер данных
+        input_shape.data(),  // Информация о форме данных
+        input_shape.size()   // Размерность 
     );
 
     // Âûïîëíÿåì inference
     auto output_tensors = session.Run(
-        Ort::RunOptions{ nullptr }, // Îïöèè âûïîëíåíèÿ (nullptr - íàñòðîéêè ïî óìîë÷àíèþ)
-        input_names.data(),         // Èìåíà âõîäîâ
-        &input_tensor,              // Âõîäíûå òåíçîðû
-        input_names.size(),         // Êîëè÷åñòâî âõîäîâ
-        output_names.data(),        // Èìåíà âûõîäîâ
-        output_names.size()         // Êîëè÷åñòâî âûõîäîâ
+        Ort::RunOptions{ nullptr }, // Опции выполнения (nullptr - настройки по умолчанию)
+        input_names.data(),         // Имена входов
+        &input_tensor,              // Входные тензоры
+        input_names.size(),         // Количество входов
+        output_names.data(),        // Имена выходов
+        output_names.size()         // Количество выходов
     );
 
-    // Îáðàáàòûâàåì ðåçóëüòàòû
+    // Обрабатываем результаты
     const int64_t* output_data = output_tensors[0].GetTensorData<int64_t>();
     auto tensor_info = output_tensors[0].GetTensorTypeAndShapeInfo();
     size_t output_size = tensor_info.GetElementCount();
@@ -82,15 +82,15 @@ std::vector<int64_t> ONNXModel::predict(std::vector<float>& input_data) {
     return std::vector<int64_t>(output_data, output_data + output_size);
 }
 
-// Ìåòîä äëÿ ïðåäñêàçàíèÿ äëÿ íåñêîëüêèõ îáúåêòîâ
+// Метод для предсказания для нескольких объектов
 std::vector<int64_t> ONNXModel::predict(std::vector<std::vector<float>>& input_data) {
     Ort::MemoryInfo memory_info = Ort::MemoryInfo::CreateCpu(
         OrtAllocatorType::OrtArenaAllocator, OrtMemType::OrtMemTypeDefault);
 
-    // Ñîçäàåì âõîäíîé òåíçîð
+    // Создаем входной тензор
     std::vector<int64_t> input_shape = input_shapes[0];
 
-    // Çàìåíÿåì äèíàìè÷åñêóþ ðàçìåðíîñòü íà ðåàëüíûé batch_size
+    // Заменяем динамическую размерность на реальный batch_size
     size_t batch_size = input_data.size();
     for (size_t i = 0; i < input_shape.size(); i++) {
         if (input_shape[i] == -1) {
@@ -99,7 +99,7 @@ std::vector<int64_t> ONNXModel::predict(std::vector<std::vector<float>>& input_d
         }
     }
 
-    // Ïðîâåðÿåì, ÷òî âñå samples èìåþò îäèíàêîâûé ðàçìåð
+    // Проверяем, что все samples имеют одинаковый размер
     size_t features_count = input_data[0].size();
     if (features_count != 78) {
         throw std::runtime_error("Expected 78 features, got " + std::to_string(features_count));
@@ -110,7 +110,7 @@ std::vector<int64_t> ONNXModel::predict(std::vector<std::vector<float>>& input_d
         }
     }
 
-    // Ïðåîáðàçóåì input_data â std::vector<float>
+    // Преобразуем input_data в std::vector<float>
     std::vector<float> input_data_processed;
     input_data_processed.reserve(batch_size * features_count);
     for (const auto& features : input_data) {
@@ -119,23 +119,23 @@ std::vector<int64_t> ONNXModel::predict(std::vector<std::vector<float>>& input_d
 
     Ort::Value input_tensor = Ort::Value::CreateTensor<float>(
         memory_info,
-        input_data_processed.data(),   // Ñàìè äàííûå
-        input_data_processed.size(),             // Ðàçìåð äàííûõ
-        input_shape.data(),            // Èíôîðìàöèÿ î ôîðìå äàííûõ
-        input_shape.size()             // Ðàçìåðíîñòü 
+        input_data_processed.data(),   // Сами данные
+        input_data_processed.size(),   // Размер данных
+        input_shape.data(),            // Информация о форме данных
+        input_shape.size()             // Размерность 
     );
 
-    // Âûïîëíÿåì inference
+    // Выполняем inference
     auto output_tensors = session.Run(
-        Ort::RunOptions{ nullptr }, // Îïöèè âûïîëíåíèÿ (nullptr - íàñòðîéêè ïî óìîë÷àíèþ)
-        input_names.data(),         // Èìåíà âõîäîâ
-        &input_tensor,              // Âõîäíûå òåíçîðû
-        input_names.size(),         // Êîëè÷åñòâî âõîäîâ
-        output_names.data(),        // Èìåíà âûõîäîâ
-        output_names.size()         // Êîëè÷åñòâî âûõîäîâ
+        Ort::RunOptions{ nullptr }, // Опции выполнения (nullptr - настройки по умолчанию)
+        input_names.data(),         // Имена входов
+        &input_tensor,              // Входные тензоры
+        input_names.size(),         // Количество входов
+        output_names.data(),        // Имена выходов
+        output_names.size()         // Количество выходов
     );
 
-    // Îáðàáàòûâàåì ðåçóëüòàòû
+    // Обрабатываем результаты
     const int64_t* output_data = output_tensors[0].GetTensorData<int64_t>();
     auto tensor_info = output_tensors[0].GetTensorTypeAndShapeInfo();
     size_t output_size = tensor_info.GetElementCount();
