@@ -24,7 +24,7 @@ std::vector<std::vector<float>> read_test_data(const std::string& filename) {
             row.push_back(std::stof(value));
         }
 
-        // Ïðîâåðÿåì, ÷òî â ñòðîêå 79 çíà÷åíèé (78 features + 1 target)
+        // Проверяем, что в строке 79 значений (78 features + 1 target)
         if (row.size() == 79) {
             data.push_back(row);
         }
@@ -48,7 +48,7 @@ bool has_cyrillic(const std::string& str) {
 
 int main(int argc, char* argv[]) {
     try {
-        // Èñïîëüçóåì PROJECT_DIR îïðåäåëåííûé â CMake
+        // Используем PROJECT_DIR, определенный в CMake
         std::string project_dir = PROJECT_DIR;
         if (has_cyrillic(project_dir)) {
             std::cerr << "ERROR: Project path contains Cyrillic characters!" << std::endl;
@@ -64,7 +64,7 @@ int main(int argc, char* argv[]) {
         if (argc > 1) model_name = argv[1];
         if (argc > 2) data_name = argv[2];
 
-        // Ôîðìèðóåì ïóòè
+        // Формируем пути
         std::string model_path = project_dir + "/models/" + model_name;
         std::string data_path = project_dir + "/data/" + data_name;
 
@@ -76,18 +76,18 @@ int main(int argc, char* argv[]) {
             ONNXModel model(model_path.c_str());
         #endif
 
-        // Òåñòîâûå äàííûå
+        // Тестовые данные
         std::vector<std::vector<float>> X_test;
         std::vector<int64_t> y_test;
         X_test = read_test_data(data_path);
         std::cout << "Loaded " << X_test.size() << " test samples" << std::endl;
 
-        // Äëÿ accuracy
+        // Для accuracy
         size_t correct_predictions = 0;
         size_t total_predictions = 0;
 
+        // Заполнение y_test и удаление последней колонки из X_test
         for (std::vector<float>& sample : X_test) {
-            // Áåðåì ïîñëåäíèé ýëåìåíò (áûñòðåå ÷åì ïåðâûé)
             y_test.push_back(static_cast<int64_t>(sample.back()));
             sample.pop_back();
         }
@@ -100,7 +100,7 @@ int main(int argc, char* argv[]) {
             total_predictions++;
         }
 
-        // Âûâîäèì ðåçóëüòàò
+        // Выводим результат
         float accuracy = static_cast<float>(correct_predictions) / total_predictions;
         std::cout << "Accuracy: " << accuracy << std::endl;
     }
