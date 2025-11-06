@@ -46,20 +46,28 @@ bool has_cyrillic(const std::string& str) {
     return false;
 }
 
-int main() {
+int main(int argc, char* argv[]) {
     try {
         // Используем PROJECT_DIR определенный в CMake
         std::string project_dir = PROJECT_DIR;
         if (has_cyrillic(project_dir)) {
             std::cerr << "ERROR: Project path contains Cyrillic characters!" << std::endl;
             std::cerr << "Current path: " << project_dir << std::endl;
-            std::cerr << "Please move the project to a path without Cyrillic letters." << std::endl;
+            std::cerr << "Please move the project to a path without Cyrillic letters and rebuild it." << std::endl;
             return 1;
         }
 
+        
+        std::string model_name = "DecisionTree_CICIDS2017_NetworkAttackDetector_v1.onnx";
+        std::string data_name = "sample_data.csv";
+
+        if (argc > 1) model_name = argv[1];
+        if (argc > 2) data_name = argv[2];
+
         // Формируем пути
-        std::string model_path = project_dir + "/models/DecisionTree_CICIDS2017_NetworkAttackDetector_v1.onnx";
-        std::string data_path = project_dir + "/data/NetworkAtackDetection_Data.csv";
+        std::string model_path = project_dir + "/models/" + model_name;
+        std::string data_path = project_dir + "/data/" + data_name;
+
         // Конвертируем в wstring для модели
         std::wstring wmodel_path(model_path.begin(), model_path.end());
 
