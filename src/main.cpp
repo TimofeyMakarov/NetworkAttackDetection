@@ -24,7 +24,7 @@ std::vector<std::vector<float>> read_test_data(const std::string& filename) {
             row.push_back(std::stof(value));
         }
 
-        // Проверяем, что в строке 79 значений (78 features + 1 target)
+        // ГЏГ°Г®ГўГҐГ°ГїГҐГ¬, Г·ГІГ® Гў Г±ГІГ°Г®ГЄГҐ 79 Г§Г­Г Г·ГҐГ­ГЁГ© (78 features + 1 target)
         if (row.size() == 79) {
             data.push_back(row);
         }
@@ -39,7 +39,7 @@ std::vector<std::vector<float>> read_test_data(const std::string& filename) {
 
 bool has_cyrillic(const std::string& str) {
     for (char c : str) {
-        if ((c >= 'А' && c <= 'я') || c == 'ё' || c == 'Ё') {
+        if ((c >= 'ГЂ' && c <= 'Гї') || c == 'Вё' || c == 'ВЁ') {
             return true;
         }
     }
@@ -48,7 +48,7 @@ bool has_cyrillic(const std::string& str) {
 
 int main(int argc, char* argv[]) {
     try {
-        // Используем PROJECT_DIR определенный в CMake
+        // Г€Г±ГЇГ®Г«ГјГ§ГіГҐГ¬ PROJECT_DIR Г®ГЇГ°ГҐГ¤ГҐГ«ГҐГ­Г­Г»Г© Гў CMake
         std::string project_dir = PROJECT_DIR;
         if (has_cyrillic(project_dir)) {
             std::cerr << "ERROR: Project path contains Cyrillic characters!" << std::endl;
@@ -64,28 +64,30 @@ int main(int argc, char* argv[]) {
         if (argc > 1) model_name = argv[1];
         if (argc > 2) data_name = argv[2];
 
-        // Формируем пути
+        // Г”Г®Г°Г¬ГЁГ°ГіГҐГ¬ ГЇГіГІГЁ
         std::string model_path = project_dir + "/models/" + model_name;
         std::string data_path = project_dir + "/data/" + data_name;
 
-        // Конвертируем в wstring для модели
-        std::wstring wmodel_path(model_path.begin(), model_path.end());
+        // РљСЂРѕСЃСЃРїР»Р°С‚С„РѕСЂРјРµРЅРЅР°СЏ Р·Р°РіСЂСѓР·РєР° РјРѕРґРµР»Рё
+        #ifdef _WIN32
+            std::wstring wmodel_path(model_path.begin(), model_path.end());
+            ONNXModel model(wmodel_path.c_str());
+        #else
+            ONNXModel model(model_path.c_str());
+        #endif
 
-        // Загружаем модель
-        ONNXModel model(wmodel_path);
-
-        // Тестовые данные
+        // Г’ГҐГ±ГІГ®ГўГ»ГҐ Г¤Г Г­Г­Г»ГҐ
         std::vector<std::vector<float>> X_test;
         std::vector<int64_t> y_test;
         X_test = read_test_data(data_path);
         std::cout << "Loaded " << X_test.size() << " test samples" << std::endl;
 
-        // Для accuracy
+        // Г„Г«Гї accuracy
         size_t correct_predictions = 0;
         size_t total_predictions = 0;
 
         for (std::vector<float>& sample : X_test) {
-            // Берем последний элемент (быстрее чем первый)
+            // ГЃГҐГ°ГҐГ¬ ГЇГ®Г±Г«ГҐГ¤Г­ГЁГ© ГЅГ«ГҐГ¬ГҐГ­ГІ (ГЎГ»Г±ГІГ°ГҐГҐ Г·ГҐГ¬ ГЇГҐГ°ГўГ»Г©)
             y_test.push_back(static_cast<int64_t>(sample.back()));
             sample.pop_back();
         }
@@ -98,7 +100,7 @@ int main(int argc, char* argv[]) {
             total_predictions++;
         }
 
-        // Выводим результат
+        // Г‚Г»ГўГ®Г¤ГЁГ¬ Г°ГҐГ§ГіГ«ГјГІГ ГІ
         float accuracy = static_cast<float>(correct_predictions) / total_predictions;
         std::cout << "Accuracy: " << accuracy << std::endl;
     }
